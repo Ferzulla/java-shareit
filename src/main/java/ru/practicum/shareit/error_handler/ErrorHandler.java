@@ -42,12 +42,9 @@ public class ErrorHandler {
         return new ErrorResponse("Ошибка валидации 400:", e.getMessage());
     }
 
-
-
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handle (Throwable e) {
+    public ErrorResponse handle(Throwable e) {
         log.debug("Получен статус 500 INTERNAL_SERVER_ERROR  {}", e.getMessage(), e);
         return new ErrorResponse("Получен статус 500 INTERNAL_SERVER_ERROR", e.getMessage());
     }
