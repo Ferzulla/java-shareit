@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.exception.OwnerNotFoundException;
+import ru.practicum.shareit.item.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.dao.ItemDao;
 import ru.practicum.shareit.user.model.User;
@@ -26,7 +26,7 @@ public class ItemServiceImpl implements ItemService {
     public Item createItem(Item item) {
         boolean ownerExists = isOwnerExists(item.getOwner());
         if (!ownerExists) {
-            throw new OwnerNotFoundException(OWNER_NOT_FOUND_MESSAGE + item.getOwner());
+            throw new EntityNotFoundException(OWNER_NOT_FOUND_MESSAGE + item.getOwner());
         }
         return itemDao.createItem(item);
     }

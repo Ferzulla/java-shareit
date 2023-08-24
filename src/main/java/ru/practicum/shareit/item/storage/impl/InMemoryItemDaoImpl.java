@@ -1,22 +1,19 @@
 package ru.practicum.shareit.item.storage.impl;
 
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.item.exception.DeniedAccessException;
+import ru.practicum.shareit.item.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.dao.ItemDao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class InMemoryItemDaoImpl implements ItemDao {
 
     public static final String ITEM_NOT_FOUND_MESSAGE = "Не найдена вещь с id: ";
     public static final String DENIED_ACCESS_MESSAGE = "Пользователь не является владельцем вещи";
-
+    private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
     private final Map<Long, Item> items = new HashMap<>();
     private long currentId = 1;
 
@@ -25,6 +22,8 @@ public class InMemoryItemDaoImpl implements ItemDao {
         long id = generateId();
         item.setId(id);
         items.put(id, item);
+        final List<Item> items = userItemIndex.computeIfAbsent(item.getOwner(), k -> new ArrayList<>());
+        items.add(item);
         return item;
     }
 
@@ -39,11 +38,19 @@ public class InMemoryItemDaoImpl implements ItemDao {
         Item updatedItem = items.get(itemId);
 
         if (!updatedItem.getOwner().equals(item.getOwner())) {
-            throw new DeniedAccessException(DENIED_ACCESS_MESSAGE +
+            throw new EntityNotFoundException(DENIED_ACCESS_MESSAGE +
                     "userId: " + item.getOwner() + ", itemId: " + itemId);
         }
 
         refreshItem(updatedItem, item);
+
+        ArrayList<Item> userItems = new ArrayList<>(userItemIndex.get(item.getOwner()));
+        for (Item userItem : userItems) {
+            if (userItem.getId() == itemId) {
+                userItem = updatedItem;
+                break;
+            }
+        }
         return updatedItem;
     }
 

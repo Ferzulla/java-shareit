@@ -40,7 +40,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@Validated({Update.class})
                               @RequestBody ItemDto itemDto,
-                              @NotNull(message = NULL_ITEM_ID_MESSAGE)
+                             // @NotNull(message = NULL_ITEM_ID_MESSAGE)
                               @Min(MIN_ID_VALUE)
                               @PathVariable Long itemId,
                               @NotNull(message = NULL_USER_ID_MESSAGE)
@@ -59,7 +59,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> findAllItems(@NotNull(message = NULL_USER_ID_MESSAGE)
+    public List<ItemDto> findAllItems(
+                                      //@NotNull(message = NULL_USER_ID_MESSAGE)
                                       @Min(MIN_ID_VALUE)
                                       @RequestHeader(USER_ID_HEADER) Long userId) {
         List<Item> userItems = itemService.findAllItems(userId);

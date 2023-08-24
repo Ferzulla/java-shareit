@@ -28,12 +28,14 @@ public class InMemoryUserDaoImpl implements UserDao {
 
     @Override
     public User updateUser(long userId, User user) {
+
         if (!users.containsKey(userId)) {
             throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
         }
+
         User oldEntry = users.get(userId);
 
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             oldEntry.setName(user.getName());
         }
 
@@ -54,9 +56,9 @@ public class InMemoryUserDaoImpl implements UserDao {
 
     @Override
     public void deleteUserById(long userId) {
-        if (!users.containsKey(userId)) throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
-        emails.remove(users.get(userId).getEmail());
-        users.remove(userId);
+        User user = users.remove(userId);
+        if (user == null) throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
+        emails.remove(user.getEmail());
     }
 
     @Override
@@ -69,11 +71,10 @@ public class InMemoryUserDaoImpl implements UserDao {
     }
 
     private void tryRefreshUserEmail(String oldEmail, String newEmail) {
-        emails.remove(oldEmail);
         if (emails.contains(newEmail)) {
-            emails.add(oldEmail);
             throw new EmailConflictException(EMAIL_CONFLICT_MESSAGE + newEmail);
         }
+        emails.remove(oldEmail);
         emails.add(newEmail);
     }
 
