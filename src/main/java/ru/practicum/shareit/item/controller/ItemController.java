@@ -21,8 +21,6 @@ public class ItemController {
 
     public static final int MIN_ID_VALUE = 1;
     public static final String USER_ID_HEADER = "X-Sharer-User-Id";
-    public static final String NULL_ITEM_ID_MESSAGE = "itemID is null";
-    public static final String NULL_USER_ID_MESSAGE = "userID is null";
 
     private final ItemService itemService;
     private final ItemMapper mapper;
@@ -30,7 +28,6 @@ public class ItemController {
     @PostMapping
     public ItemDto createItem(@Validated({Create.class})
                               @RequestBody ItemDto itemDto,
-                              @NotNull(message = (NULL_ITEM_ID_MESSAGE))
                               @Min(MIN_ID_VALUE)
                               @RequestHeader(USER_ID_HEADER) Long userId) {
         Item item = mapper.toModel(itemDto, userId);
@@ -40,10 +37,8 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@Validated({Update.class})
                               @RequestBody ItemDto itemDto,
-                             // @NotNull(message = NULL_ITEM_ID_MESSAGE)
                               @Min(MIN_ID_VALUE)
                               @PathVariable Long itemId,
-                              @NotNull(message = NULL_USER_ID_MESSAGE)
                               @Min(MIN_ID_VALUE)
                               @RequestHeader(USER_ID_HEADER) Long userId) {
         Item item = mapper.toModel(itemDto, userId);
@@ -52,7 +47,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findItemById(@NotNull(message = NULL_ITEM_ID_MESSAGE)
+    public ItemDto findItemById(
                                 @Min(MIN_ID_VALUE)
                                 @PathVariable Long itemId) {
         return mapper.toDto(itemService.findItemById(itemId));
@@ -60,7 +55,6 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> findAllItems(
-                                      //@NotNull(message = NULL_USER_ID_MESSAGE)
                                       @Min(MIN_ID_VALUE)
                                       @RequestHeader(USER_ID_HEADER) Long userId) {
         List<Item> userItems = itemService.findAllItems(userId);

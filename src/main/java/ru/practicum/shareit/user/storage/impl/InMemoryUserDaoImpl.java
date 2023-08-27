@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.storage.impl;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.exception.EmailConflictException;
-import ru.practicum.shareit.user.exception.UserNotFoundException;
+import ru.practicum.shareit.user.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.dao.UserDao;
 
@@ -30,7 +30,7 @@ public class InMemoryUserDaoImpl implements UserDao {
     public User updateUser(long userId, User user) {
 
         if (!users.containsKey(userId)) {
-            throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
+            throw new EntityNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
         }
 
         User oldEntry = users.get(userId);
@@ -50,14 +50,14 @@ public class InMemoryUserDaoImpl implements UserDao {
 
     @Override
     public User findUserById(long userId) {
-        if (!users.containsKey(userId)) throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
+        if (!users.containsKey(userId)) throw new EntityNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
         return users.get(userId);
     }
 
     @Override
     public void deleteUserById(long userId) {
         User user = users.remove(userId);
-        if (user == null) throw new UserNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
+        if (user == null) throw new EntityNotFoundException(USER_NOT_FOUND_MESSAGE + userId);
         emails.remove(user.getEmail());
     }
 

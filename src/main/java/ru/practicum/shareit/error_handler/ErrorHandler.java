@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.item.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.exception.EmailConflictException;
-import ru.practicum.shareit.user.exception.UserNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -21,12 +20,6 @@ public class ErrorHandler {
         return new ErrorResponse("Адрес почты уже используется", e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(UserNotFoundException e) {
-        log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse("Недопустимое значение id", e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
