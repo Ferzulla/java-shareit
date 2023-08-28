@@ -58,7 +58,7 @@ public class InMemoryItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findAllItems(Long userId) {
         List<Item> result = new ArrayList<>();
-        for(Item item : items.values()) {
+        for (Item item : items.values()) {
             if (item.getOwner().equals(userId)) result.add(item);
         }
         return result;
