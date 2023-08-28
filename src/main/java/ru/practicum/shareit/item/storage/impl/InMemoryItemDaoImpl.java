@@ -31,13 +31,13 @@ public class InMemoryItemDaoImpl implements ItemDao {
     public Item updateItem(Item item) {
         long itemId = item.getId();
 
-        if(!items.containsKey(itemId)) {
+        if (!items.containsKey(itemId)) {
             throw new ItemNotFoundException(ITEM_NOT_FOUND_MESSAGE + itemId);
         }
 
         Item updatedItem = items.get(itemId);
 
-        if(!updatedItem.getOwner().equals(item.getOwner())) {
+        if (!updatedItem.getOwner().equals(item.getOwner())) {
             throw new EntityNotFoundException(DENIED_ACCESS_MESSAGE +
                     "userId: " + item.getOwner() + ", itemId: " + itemId);
         }
@@ -49,7 +49,7 @@ public class InMemoryItemDaoImpl implements ItemDao {
 
     @Override
     public Item findItemById(Long itemId) {
-        if(!items.containsKey(itemId)) {
+        if (!items.containsKey(itemId)) {
             throw new ItemNotFoundException(ITEM_NOT_FOUND_MESSAGE + itemId);
         }
         return items.get(itemId);
@@ -59,7 +59,7 @@ public class InMemoryItemDaoImpl implements ItemDao {
     public List<Item> findAllItems(Long userId) {
         List<Item> result = new ArrayList<>();
         for(Item item : items.values()) {
-            if(item.getOwner().equals(userId)) result.add(item);
+            if (item.getOwner().equals(userId)) result.add(item);
         }
         return result;
     }
@@ -69,11 +69,11 @@ public class InMemoryItemDaoImpl implements ItemDao {
         List<Item> result = new ArrayList<>();
         String wantedItem = text.toLowerCase();
 
-        for(Item item : items.values()) {
+        for (Item item : items.values()) {
             String itemName = item.getName().toLowerCase();
             String itemDescription = item.getDescription().toLowerCase();
 
-            if((itemName.contains(wantedItem) || itemDescription.contains(wantedItem))
+            if ((itemName.contains(wantedItem) || itemDescription.contains(wantedItem))
                     && item.getAvailable().equals(true)) {
                 result.add(item);
             }
@@ -87,17 +87,17 @@ public class InMemoryItemDaoImpl implements ItemDao {
 
     private void refreshItem(Item oldEntry, Item newEntry) {
         String name = newEntry.getName();
-        if(name != null && !name.isBlank()) {
+        if (name != null && !name.isBlank()) {
             oldEntry.setName(name);
         }
 
         String description = newEntry.getDescription();
-        if(description != null && !description.isBlank()) {
+        if (description != null && !description.isBlank()) {
             oldEntry.setDescription(description);
         }
 
         Boolean available = newEntry.getAvailable();
-        if(available != null) {
+        if (available != null) {
             oldEntry.setAvailable(available);
         }
     }
