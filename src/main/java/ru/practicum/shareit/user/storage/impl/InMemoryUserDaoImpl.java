@@ -41,7 +41,7 @@ public class InMemoryUserDaoImpl implements UserDao {
 
         String oldEmail = users.get(userId).getEmail();
         String newEmail = user.getEmail();
-        if (newEmail != null && !oldEmail.equals(newEmail)) {
+        if (newEmail != null && !oldEmail.equals(newEmail) && !newEmail.isEmpty()) {
             tryRefreshUserEmail(oldEmail, newEmail);
             oldEntry.setEmail(newEmail);
         }

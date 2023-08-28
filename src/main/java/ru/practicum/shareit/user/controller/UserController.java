@@ -20,8 +20,6 @@ import java.util.List;
 public class UserController {
 
     public static final int MIN_ID_VALUE = 1;
-    public static final String NULL_USER_ID_MESSAGE = "userID is null";
-
     private final UserMapper mapper;
     private final UserService userService;
 
@@ -32,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto findUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
+    public UserDto findUserById(
                                 @Min(MIN_ID_VALUE)
                                 @PathVariable Long userId) {
         return mapper.toDto(userService.findUserById(userId));
@@ -44,7 +42,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@NotNull(message = NULL_USER_ID_MESSAGE)
+    public UserDto updateUser(
                               @Min(MIN_ID_VALUE)
                               @PathVariable Long userId,
                               @Validated({Update.class})
@@ -54,7 +52,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
+    public void deleteUserById(
                                @Min(MIN_ID_VALUE)
                                @PathVariable Long userId) {
         userService.deleteUserById(userId);

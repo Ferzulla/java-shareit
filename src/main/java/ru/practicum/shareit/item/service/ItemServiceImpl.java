@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> findItemsByRequest(String text) {
-        if (text == null || text.isBlank() || text.length() <= MIN_SEARCH_REQUEST_LENGTH) {
+        if (text.isBlank() || text.length() <= MIN_SEARCH_REQUEST_LENGTH) {
             return new ArrayList<>();
         }
         return itemDao.findItemsByRequest(text);

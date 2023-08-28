@@ -44,13 +44,6 @@ public class InMemoryItemDaoImpl implements ItemDao {
 
         refreshItem(updatedItem, item);
 
-        ArrayList<Item> userItems = new ArrayList<>(userItemIndex.get(item.getOwner()));
-        for (Item userItem : userItems) {
-            if (userItem.getId() == itemId) {
-                userItem = updatedItem;
-                break;
-            }
-        }
         return updatedItem;
     }
 
@@ -94,17 +87,17 @@ public class InMemoryItemDaoImpl implements ItemDao {
 
     private void refreshItem(Item oldEntry, Item newEntry) {
         String name = newEntry.getName();
-        if (name != null) {
+        if (name != null && !name.isBlank()) {
             oldEntry.setName(name);
         }
 
         String description = newEntry.getDescription();
-        if (description != null) {
+        if (description != null && !description.isBlank()) {
             oldEntry.setDescription(description);
         }
 
         Boolean available = newEntry.getAvailable();
-        if (available != null) {
+        if (available != null ) {
             oldEntry.setAvailable(available);
         }
     }
