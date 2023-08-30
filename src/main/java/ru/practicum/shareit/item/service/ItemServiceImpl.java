@@ -8,7 +8,7 @@ import ru.practicum.shareit.item.storage.dao.ItemDao;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.dao.UserDao;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
