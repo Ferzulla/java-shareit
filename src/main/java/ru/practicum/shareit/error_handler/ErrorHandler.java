@@ -1,44 +1,80 @@
 package ru.practicum.shareit.error_handler;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.item.exception.EntityNotFoundException;
-import ru.practicum.shareit.user.exception.EmailConflictException;
+import ru.practicum.shareit.exceptions.*;
+
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
-@Slf4j
 public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handle(EmailConflictException e) {
-        log.debug("Получен статус 409 Conflict {}", e.getMessage(), e);
-        return new ErrorResponse("Адрес почты уже используется", e.getMessage());
+        return new ErrorResponse("Адрес почты уже используется ", e.getMessage());
     }
-
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handle(EntityNotFoundException e) {
-        log.debug("Получен статус 404 Not Found {}", e.getMessage(), e);
-        return new ErrorResponse("Не найдено", e.getMessage());
+    public ErrorResponse handle(UserNotFoundException e) {
+        return new ErrorResponse("Недопустимое значение id ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(OwnerNotFoundException e) {
+        return new ErrorResponse("Не найден владелец вещи ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handle(DeniedAccessException e) {
+        return new ErrorResponse("Отказано в доступе ", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handle(MethodArgumentNotValidException e) {
-        log.debug("Получен статус 400 Bad Request  {}", e.getMessage(), e);
-        return new ErrorResponse("Ошибка валидации 400:", e.getMessage());
+        return new ErrorResponse("Ошибка валидации 400: ", e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handle(Throwable e) {
-        log.debug("Получен статус 500 INTERNAL_SERVER_ERROR  {}", e.getMessage(), e);
-        return new ErrorResponse("Получен статус 500 INTERNAL_SERVER_ERROR", e.getMessage());
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(NoSuchElementException e) {
+        return new ErrorResponse("Ошибка поиска элемента 404: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(UnavailableBookingException e) {
+        return new ErrorResponse("Ошибка бронирования 400: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(IllegalArgumentException e) {
+        return new ErrorResponse("Передано недопустимое значение 400: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(UnsupportedStatusException e) {
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(InvalidBookingException e) {
+        return new ErrorResponse("недопустимое бронирование 404: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(CommentException e) {
+        return new ErrorResponse("невозможно оставить комментарий 400: ", e.getMessage());
     }
 }
