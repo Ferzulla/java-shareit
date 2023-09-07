@@ -1,55 +1,51 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.validation_markers.Create;
-import ru.practicum.shareit.validation_markers.Update;
+import ru.practicum.shareit.user.model.UserDto;
+import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
+@Validated
 @RequestMapping(path = "/users")
 public class UserController {
-
-    public static final int MIN_ID_VALUE = 1;
-    public static final String NULL_USER_ID_MESSAGE = "userID is null";
-
     private final UserService userService;
 
-    @PostMapping
-    public UserDto createUser(@Validated({Create.class}) @RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
+    @GetMapping
+    public List<UserDto> getAllUsers() {
+        log.info("Принят запрос на получение списка всех пользователей");
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
-    public UserDto findUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
-                                @Min(MIN_ID_VALUE)
-                                @PathVariable Long userId) {
-        return userService.findUserById(userId);
+    public UserDto getUser(@PathVariable @Positive Long userId) {
+        log.info("Принят запрос на получение пользователя ID " + userId);
+        return userService.getUser(userId);
     }
 
-    @GetMapping
-    public List<UserDto> findAllUsers() {
-        return userService.findAllUsers();
+    @PostMapping
+    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
+        log.info("Принят запрос на добавление нового пользователя");
+        return userService.addUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@NotNull(message = NULL_USER_ID_MESSAGE)
-                              @Min(MIN_ID_VALUE)
-                              @PathVariable Long userId,
-                              @Validated({Update.class})
-                              @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable @Positive Long userId, @RequestBody UserDto userDto) {
+        log.info("Принят запрос на обновление данных пользователя ID " + userId);
         return userService.updateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUserById(@NotNull(message = (NULL_USER_ID_MESSAGE))
-                               @Min(MIN_ID_VALUE)
-                               @PathVariable Long userId) {
-        userService.deleteUserById(userId);
+    public void deleteUser(@PathVariable @Positive Long userId) {
+        log.info("Принят запрос на удаление пользователя ID " + userId);
+        userService.deleteUser(userId);
     }
 }

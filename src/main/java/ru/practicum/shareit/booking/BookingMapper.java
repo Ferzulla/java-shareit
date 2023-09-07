@@ -1,66 +1,47 @@
 package ru.practicum.shareit.booking;
 
-import ru.practicum.shareit.booking.dto.*;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingClientDto;
+import ru.practicum.shareit.booking.model.BookingItemDto;
+import ru.practicum.shareit.booking.model.BookingServerDto;
+import ru.practicum.shareit.enums.Status;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+@UtilityClass
 public class BookingMapper {
-    public static Booking toModel(BookingPostDto dto, Item item, User user) {
-        Booking booking = new Booking();
-        booking.setStart(dto.getStart());
-        booking.setEnd(dto.getEnd());
-        booking.setItem(item);
-        booking.setBooker(user);
-        booking.setStatus(BookingStatus.WAITING);
-        return booking;
+    public static Booking toBooking(Item item, User booker, BookingClientDto bookingClientDto) {
+        return new Booking(
+                null,
+                item,
+                booker,
+                bookingClientDto.getStart(),
+                bookingClientDto.getEnd(),
+                Status.WAITING
+        );
     }
 
-    public static BookingPostResponseDto toPostResponseDto(Booking booking, Item item) {
-        BookingPostResponseDto dto = new BookingPostResponseDto();
-        dto.setId(booking.getId());
-        dto.setItem(item);
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
-        return dto;
+    public static BookingServerDto toBookingServerDto(Booking booking) {
+        return new BookingServerDto(
+                booking.getId(),
+                UserMapper.toUserDto(booking.getBooker()),
+                ItemMapper.toItemServerDto(booking.getItem()),
+                booking.getStart(),
+                booking.getEnd(),
+                booking.getStatus()
+        );
     }
 
-    public static BookingResponseDto toResponseDto(Booking booking, User booker, Item item) {
-        BookingResponseDto dto = new BookingResponseDto();
-        dto.setId(booking.getId());
-        dto.setStatus(booking.getStatus());
-        dto.setBooker(booker);
-        dto.setItem(item);
-        dto.setName(item.getName());
-        return dto;
-    }
-
-    public static BookingDetailedDto toDetailedDto(Booking booking) {
-        BookingDetailedDto dto = new BookingDetailedDto();
-        dto.setId(booking.getId());
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
-        dto.setStatus(booking.getStatus());
-        dto.setBooker(booking.getBooker());
-        dto.setItem(booking.getItem());
-        dto.setName(booking.getItem().getName());
-        return dto;
-    }
-
-    public static BookingInItemDto bookingInItemDto(Booking booking) {
-        if (booking == null) return null;
-
-        BookingInItemDto dto = new BookingInItemDto();
-        dto.setId(booking.getId());
-        dto.setBookerId(booking.getBooker().getId());
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
-        return dto;
-    }
-
-    public static List<BookingDetailedDto> toListDetailedDto(List<Booking> bookings) {
-        return bookings.stream().map(BookingMapper::toDetailedDto).collect(Collectors.toList());
+    public static BookingItemDto toBookingItemDto(Booking booking) {
+        return new BookingItemDto(
+                booking.getId(),
+                booking.getBooker().getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                booking.getStatus()
+        );
     }
 }
