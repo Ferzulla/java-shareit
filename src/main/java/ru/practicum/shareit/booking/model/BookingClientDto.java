@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @ValidStartEndDate
 @AllArgsConstructor
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingClientDto {
     @Positive
     @NotNull
