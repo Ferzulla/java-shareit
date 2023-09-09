@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ValidStartEndDate
-@FieldDefaults(level= AccessLevel.PRIVATE)
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
