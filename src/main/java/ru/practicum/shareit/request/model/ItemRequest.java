@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,16 +18,17 @@ import javax.validation.constraints.NotNull;
 @Table(name = "requests")
 @Data
 @AllArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+     Integer id;
 
     @NotBlank
     @Column(nullable = false)
-    private String description;
+     String description;
 
     @NotNull
     @Column(name = "requestor_id", nullable = false)
-    private Long requestorId;
+     Long requestorId;
 }

@@ -1,16 +1,19 @@
 package ru.practicum.shareit.item.comment.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class CommentServerDto {
-    private Integer id;
-    private Long authorId;
-    private String authorName;
-    private String text;
-    private LocalDateTime created;
+     Integer id;
+     Long authorId;
+     String authorName;
+     String text;
+     LocalDateTime created;
 }

@@ -29,43 +29,47 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 public class BookingController {
     private final BookingService bookingService;
+    public static final String USER_ID_HEADER = "X-Sharer-User-Id";
+    public static final String DEFAULT_STATE_VALUE = "ALL";
 
     @PostMapping
     public BookingServerDto addBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @RequestBody @Valid BookingClientDto bookingClientDto) {
+            @RequestHeader(USER_ID_HEADER) @Positive Long userId, @RequestBody @Valid BookingClientDto bookingClientDto) {
         log.info("Принят запрос на добавление бронирования");
         return bookingService.addBooking(userId, bookingClientDto);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingServerDto approveBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
+            @RequestHeader(USER_ID_HEADER) @Positive Long ownerId,
             @PathVariable @Positive Integer bookingId,
             @RequestParam @NotNull Boolean approved) {
-        log.info("Принят запрос на подтверждение или отклонение бронирования ID " + bookingId);
+        log.info(String.format("Принят запрос на подтверждение или отклонение бронирования ID %s", bookingId));
         return bookingService.approveBooking(ownerId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingServerDto getBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @PathVariable @Positive Integer bookingId) {
-        log.info("Принят запрос на получение данных бронирования ID " + bookingId + " от пользователя ID " + userId);
+            @RequestHeader(USER_ID_HEADER) @Positive Long userId, @PathVariable @Positive Integer bookingId) {
+        log.info(String.format("Принят запрос на получение данных бронирования ID %s от пользователя ID %s",
+                bookingId, userId));
         return bookingService.getBooking(userId, bookingId);
     }
 
     @GetMapping
     public List<BookingServerDto> getUserBookings(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam (defaultValue = "ALL") State state) {
-        log.info("Принят запрос на получение списка бронирований пользователя ID " + userId);
+            @RequestHeader(USER_ID_HEADER) @Positive Long userId,
+            @RequestParam (defaultValue = DEFAULT_STATE_VALUE) State state) {
+        log.info(String.format("Принят запрос на получение списка бронирований пользователя ID %s", userId));
         return bookingService.getUserBookings(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingServerDto> getItemBookings(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam (defaultValue = "ALL") State state) {
-        log.info("Принят запрос на получение списка бронирований для всех вещей пользователя ID " + userId);
+            @RequestHeader(USER_ID_HEADER) @Positive Long userId,
+            @RequestParam (defaultValue = DEFAULT_STATE_VALUE) State state) {
+        log.info(String.format("Принят запрос на получение списка бронирований для всех вещей пользователя ID %s",
+                userId));
         return bookingService.getItemBookings(userId, state);
     }
 }

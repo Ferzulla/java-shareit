@@ -1,7 +1,9 @@
 package ru.practicum.shareit.booking.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.validator.ValidStartEndDate;
 
 import javax.validation.constraints.NotNull;
@@ -11,14 +13,15 @@ import java.time.LocalDateTime;
 @Data
 @ValidStartEndDate
 @AllArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class BookingClientDto {
     @Positive
     @NotNull
-    private Integer itemId;
+     Integer itemId;
 
     @NotNull
-    private LocalDateTime start;
+     LocalDateTime start;
 
     @NotNull
-    private LocalDateTime end;
+     LocalDateTime end;
 }

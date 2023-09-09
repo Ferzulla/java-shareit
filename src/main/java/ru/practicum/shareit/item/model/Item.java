@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
@@ -16,31 +17,32 @@ import javax.validation.constraints.NotNull;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+     Integer id;
 
     @Column(nullable = false)
     @NotBlank
-    private String name;
+     String name;
 
     @Column(nullable = false)
     @NotBlank
-    private String description;
+     String description;
 
     @Column(nullable = false)
     @NotNull
-    private Boolean available;
+     Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private User owner;
+     User owner;
 
     @Transient
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private ItemRequest request;
+     ItemRequest request;
 }

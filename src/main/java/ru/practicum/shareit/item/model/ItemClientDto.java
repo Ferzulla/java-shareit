@@ -1,22 +1,25 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class ItemClientDto {
-    private Integer id;
+     Integer id;
 
     @NotBlank
-    private String name;
+     String name;
 
     @NotBlank
-    private String description;
+     String description;
 
     @NotNull
-    private Boolean available;
+     Boolean available;
 }

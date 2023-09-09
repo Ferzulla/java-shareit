@@ -1,17 +1,20 @@
 package ru.practicum.shareit.request.model;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class ItemRequestDto {
-    private Integer id;
+     Integer id;
 
     @NotBlank
-    private String description;
+     String description;
 
     @NotNull
-    private Long requestorId;
+     Long requestorId;
 }

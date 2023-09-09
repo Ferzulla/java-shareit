@@ -21,17 +21,18 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    public static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @GetMapping
-    public List<ItemServerDto> getAllUserItems(@RequestHeader("X-Sharer-User-Id") @Positive Long ownerId) {
-        log.info("Принят запрос на получение списка всех вещей пользователя ID " + ownerId);
+    public List<ItemServerDto> getAllUserItems(@RequestHeader(USER_ID_HEADER) @Positive Long ownerId) {
+        log.info(String.format("Принят запрос на получение списка всех вещей пользователя ID %s", ownerId));
         return itemService.getAllUserItems(ownerId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemServerDto getItem(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
+    public ItemServerDto getItem(@RequestHeader(USER_ID_HEADER) @Positive Long userId,
                                  @PathVariable @Positive Integer itemId) {
-        log.info("Принят запрос на получение вещи ID " + itemId);
+        log.info(String.format("Принят запрос на получение вещи ID %s", itemId));
         return itemService.getItem(userId, itemId);
     }
 
@@ -42,26 +43,26 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemServerDto addItem(@RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
+    public ItemServerDto addItem(@RequestHeader(USER_ID_HEADER) @Positive Long ownerId,
                                  @RequestBody @Valid ItemClientDto itemDto) {
-        log.info("Принят запрос на добавление новой вещи пользователя ID " + ownerId);
+        log.info(String.format("Принят запрос на добавление новой вещи пользователя ID %s", ownerId));
         return itemService.addItem(ownerId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemServerDto editItem(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
+            @RequestHeader(USER_ID_HEADER) @Positive Long ownerId,
             @PathVariable @Positive Integer itemId,
             @RequestBody ItemClientDto itemDto) {
-        log.info("Принят запрос на редактирование данных вещи ID " + itemId + " пользователя ID " + ownerId);
+        log.info(String.format("Принят запрос на редактирование данных вещи ID %s пользователя ID %s",itemId, ownerId));
         return itemService.editItem(ownerId, itemId, itemDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentServerDto addComment(@RequestHeader("X-Sharer-User-Id") @Positive Long authorId,
+    public CommentServerDto addComment(@RequestHeader(USER_ID_HEADER) @Positive Long authorId,
                                        @PathVariable @Positive Integer itemId,
                                        @RequestBody @Valid CommentClientDto commentDto) {
-        log.info("Принят запрос на добавление комментария к вещи ID " + itemId);
+        log.info(String.format("Принят запрос на добавление комментария к вещи ID %s", itemId));
         return itemService.addComment(authorId, itemId, commentDto);
     }
 }

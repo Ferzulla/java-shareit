@@ -27,7 +27,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable @Positive Long userId) {
-        log.info("Принят запрос на получение пользователя ID " + userId);
+        log.info(String.format("Принят запрос на получение пользователя ID %s", userId));
         return userService.getUser(userId);
     }
 
@@ -39,13 +39,13 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable @Positive Long userId, @RequestBody UserDto userDto) {
-        log.info("Принят запрос на обновление данных пользователя ID " + userId);
+        log.info(String.format("Принят запрос на обновление данных пользователя ID %s", userId));
         return userService.updateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable @Positive Long userId) {
-        log.info("Принят запрос на удаление пользователя ID " + userId);
+        log.info(String.format("Принят запрос на удаление пользователя I %s", userId));
         userService.deleteUser(userId);
     }
 }
