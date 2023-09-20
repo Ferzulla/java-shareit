@@ -12,8 +12,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemClientDto {
-     Integer id;
-
     @NotBlank
      String name;
 
@@ -22,4 +20,5 @@ public class ItemClientDto {
 
     @NotNull
      Boolean available;
+    Integer requestId;
 }

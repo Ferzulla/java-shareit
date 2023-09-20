@@ -16,15 +16,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemServerDto {
      Integer id;
-
-    @NotBlank
      String name;
-
-    @NotBlank
      String description;
-
-    @NotNull
      Boolean available;
+    Integer requestId;
      BookingItemDto lastBooking;
      BookingItemDto nextBooking;
      List<CommentServerDto> comments;
