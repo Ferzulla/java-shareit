@@ -7,8 +7,6 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.BookingItemDto;
 import ru.practicum.shareit.item.comment.model.CommentServerDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
