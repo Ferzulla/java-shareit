@@ -43,14 +43,16 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
             @PathVariable @Positive Integer bookingId,
             @RequestParam @NotNull Boolean approved) {
-        log.info("Принят запрос на подтверждение или отклонение бронирования ID " + bookingId);
+        log.info(String.format("Принят запрос на подтверждение или отклонение бронирования ID  %s ",
+                bookingId));
         return bookingService.approveBooking(ownerId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingServerDto getBooking(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @PathVariable @Positive Integer bookingId) {
-        log.info("Принят запрос на получение данных бронирования ID " + bookingId + " от пользователя ID " + userId);
+        log.info(String.format("Принят запрос на получение данных бронирования ID  %s от пользователя ID %s ",
+                bookingId, userId));
         return bookingService.getBooking(userId, bookingId);
     }
 
@@ -60,7 +62,8 @@ public class BookingController {
             @RequestParam (defaultValue = "ALL") State state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Принят запрос на получение списка бронирований пользователя ID " + userId);
+        log.info(String.format("Принят запрос на получение списка бронирований пользователя ID %s ",
+                userId));
         return bookingService.getUserBookings(userId, state, from, size);
     }
 
@@ -70,7 +73,8 @@ public class BookingController {
             @RequestParam (defaultValue = "ALL") State state,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Принят запрос на получение списка бронирований для всех вещей пользователя ID " + userId);
+        log.info(String.format("Принят запрос на получение списка бронирований для всех вещей пользователя ID %s ",
+                userId));
         return bookingService.getItemBookings(userId, state, from, size);
     }
 }

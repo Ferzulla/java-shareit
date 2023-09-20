@@ -34,28 +34,28 @@ import java.time.LocalDateTime;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Item item;
+     Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booker_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private User booker;
+     User booker;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime start;
+     LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime end;
+     LocalDateTime end;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Status status;
+     Status status;
 }

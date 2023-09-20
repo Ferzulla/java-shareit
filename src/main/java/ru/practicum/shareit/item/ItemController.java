@@ -29,14 +29,16 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Принят запрос на получение списка всех вещей пользователя ID " + ownerId);
+        log.info(String.format("Принят запрос на получение списка всех вещей пользователя ID %s ",
+                ownerId));
         return itemService.getAllUserItems(ownerId, from, size);
     }
 
     @GetMapping("/{itemId}")
     public ItemServerDto getItem(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
                                  @PathVariable @Positive Integer itemId) {
-        log.info("Принят запрос на получение вещи ID " + itemId);
+        log.info(String.format("Принят запрос на получение вещи ID %s ",
+                itemId));
         return itemService.getItem(userId, itemId);
     }
 
@@ -61,7 +63,8 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
             @PathVariable @Positive Integer itemId,
             @RequestBody ItemClientDto itemDto) {
-        log.info("Принят запрос на редактирование данных вещи ID " + itemId + " пользователя ID " + ownerId);
+        log.info(String.format("Принят запрос на редактирование данных вещи ID %s пользователя ID %s ",
+                itemId, ownerId));
         return itemService.editItem(ownerId, itemId, itemDto);
     }
 
@@ -69,7 +72,8 @@ public class ItemController {
     public CommentServerDto addComment(@RequestHeader("X-Sharer-User-Id") @Positive Long authorId,
                                        @PathVariable @Positive Integer itemId,
                                        @RequestBody @Valid CommentClientDto commentDto) {
-        log.info("Принят запрос на добавление комментария к вещи ID " + itemId);
+        log.info(String.format("Принят запрос на добавление комментария к вещи ID %s ",
+                itemId));
         return itemService.addComment(authorId, itemId, commentDto);
     }
 }

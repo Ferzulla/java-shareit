@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -40,12 +42,13 @@ import static ru.practicum.shareit.EntityFinder.*;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemServiceImpl implements ItemService {
-    private final ItemRepository itemRepo;
-    private final UserRepository userRepo;
-    private final BookingRepository bookingRepo;
-    private final CommentRepository commentRepo;
-    private final RequestRepository requestRepo;
+     final ItemRepository itemRepo;
+     final UserRepository userRepo;
+     final BookingRepository bookingRepo;
+     final CommentRepository commentRepo;
+     final RequestRepository requestRepo;
 
     @Transactional(readOnly = true)
     @Override
@@ -53,7 +56,8 @@ public class ItemServiceImpl implements ItemService {
         List<Item> userItems = itemRepo.findAllByOwnerId(
                 ownerId,
                 PageRequest.of(from / size, size));
-        log.info("Получен список всех вещей пользователя ID " + ownerId);
+        log.info(String.format("Получен список всех вещей пользователя ID %s ",
+                ownerId));
         return userItems.stream()
                 .map(ItemMapper::toItemServerDto)
                 .map(this::setLastAndNextBookings)
@@ -114,7 +118,8 @@ public class ItemServiceImpl implements ItemService {
         }
         validateItem(itemFromRepo);
         Item item = itemRepo.save(itemFromRepo);
-        log.info("Отредактированы данные вещи ID " + itemId + " пользователя ID " + ownerId);
+        log.info(String.format("Отредактированы данные вещи ID %s пользователя ID %s ",
+                itemId, ownerId));
         return ItemMapper.toItemServerDto(item);
     }
 
@@ -145,7 +150,8 @@ public class ItemServiceImpl implements ItemService {
                     "Пользователь, не бравший вещь в аренду, не может оставлять комментарии к ней");
         }
         Comment comment = commentRepo.save(CommentMapper.toComment(user, item, commentDto));
-        log.info("Добавлен комментарий к вещи ID " + itemId + " от пользователя ID " + authorId);
+        log.info(String.format("Добавлен комментарий к вещи ID %s пользователя ID %s ",
+                itemId, authorId));
         return CommentMapper.toCommentServerDto(comment);
     }
 

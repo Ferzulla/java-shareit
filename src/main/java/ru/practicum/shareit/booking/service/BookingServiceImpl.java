@@ -49,8 +49,8 @@ public class BookingServiceImpl implements BookingService {
             throw new ItemNotAvailableException("Вещь недоступна для бронирования");
         }
         Booking booking = bookingRepo.save(BookingMapper.toBooking(item, user, bookingClientDto));
-        log.info("Добавлено бронирование вещи ID " + bookingClientDto.getItemId() +
-                " от пользователя ID " + userId);
+        log.info(String.format("Добавлено бронирование вещи ID %s от пользователя ID %s ",
+                bookingClientDto.getItemId(), userId));
         return BookingMapper.toBookingServerDto(booking);
     }
 
@@ -87,7 +87,8 @@ public class BookingServiceImpl implements BookingService {
                     "Данные о бронировании может получить только владелец вещи или автор заявки на бронирование"
             );
         }
-        log.info("Получены данные о бронировании ID " + bookingId + " для пользователя ID " + userId);
+        log.info(String.format("Получены данные о бронировании ID  %s для пользователя ID %s ",
+                bookingId, userId));
         return BookingMapper.toBookingServerDto(booking);
     }
 
