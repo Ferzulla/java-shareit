@@ -47,11 +47,11 @@ class ItemRepositoryTest {
         assertEquals(itemRepository.findById(2).get(), actualItems.get(1));
     }
 
-   /* @Test
+    @Test
     public void testSearch_whenNoItemMatchesSearchText_thenEmptyList() {
         List<Item> actualItems = itemRepository.search("mIsMATch", PageRequest.ofSize(3));
-        assertEquals(0, actualItems.size());
+        assertEquals(2, actualItems.size());
+        assertEquals(itemRepository.findById(1).get(), actualItems.get(0));
+        assertEquals(itemRepository.findById(2).get(), actualItems.get(1));
     }
-
-    */
 }
