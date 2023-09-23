@@ -1,9 +1,7 @@
 package ru.practicum.shareit.comment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -14,12 +12,13 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDto {
-    private Long id;
+     Long id;
     @NotBlank
-    private String text;
-    private LocalDateTime created;
-    private String authorName;
+     String text;
+     LocalDateTime created;
+     String authorName;
 
     @Override
     public boolean equals(Object o) {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -8,13 +9,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDtoReq {
-    private Long id;
-    private String name;
-    private String description;
-    private Long ownerId;
-    private Long requestId;
-    private Boolean available;
+     Long id;
+     String name;
+     String description;
+     Long ownerId;
+     Long requestId;
+     Boolean available;
 
 }
 

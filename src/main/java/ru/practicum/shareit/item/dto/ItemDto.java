@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingDtoShort;
 import ru.practicum.shareit.comment.dto.CommentDto;
 
@@ -16,19 +17,20 @@ import java.util.List;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
 
-    private Long id;
+     Long id;
     @NotBlank(message = "Name не должен быть пустым")
-    private String name;
+     String name;
     @NotBlank(message = "description не должен быть пустым")
-    private String description;
-    private Long ownerId;
+     String description;
+     Long ownerId;
     @NotNull(message = "available не должен отсутствовать")
-    private Boolean available;
-    private List<CommentDto> comments;
-    private BookingDtoShort lastBooking;
-    private BookingDtoShort nextBooking;
-    private Long requestId;
+     Boolean available;
+     List<CommentDto> comments;
+     BookingDtoShort lastBooking;
+     BookingDtoShort nextBooking;
+     Long requestId;
 
 }

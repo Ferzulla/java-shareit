@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.item.dto.ItemDtoReq;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -18,12 +19,13 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RequestDto {
-    private Long id;
+     Long id;
     @NotBlank(message = "не должно быть пустым")
-    private String description;
-    private UserDto requestor;
+     String description;
+     UserDto requestor;
     @JsonProperty("created")
-    private LocalDateTime created;
-    private List<ItemDtoReq> items;
+     LocalDateTime created;
+     List<ItemDtoReq> items;
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -20,20 +21,21 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(name = "requests")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
     @Id
     @Column(name = "request_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+     Long id;
     @Column(name = "description", nullable = false)
-    private String description;
+     String description;
     @ManyToOne
     @JoinColumn(name = "requestor_id", nullable = false)
-    private User requestor;
+     User requestor;
     @Column(name = "created")
-    private LocalDateTime created;
+     LocalDateTime created;
     @OneToMany(mappedBy = "request", orphanRemoval = true, cascade = CascadeType.ALL)
     @Column(nullable = true)
     @JsonIgnore
-    private List<Item> items;
+     List<Item> items;
 }
