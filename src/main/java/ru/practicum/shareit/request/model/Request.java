@@ -1,40 +1,39 @@
 package ru.practicum.shareit.request.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
+/**
+ * TODO Sprint add-item-requests.
+ */
 @Entity
-@Table(name = "requests")
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = {"id"})
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+@Table(name = "requests")
 public class Request {
     @Id
+    @Column(name = "request_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     Integer id;
-
-    @NotBlank
-    @Column(nullable = false)
-     String description;
-
+    private Long id;
+    @Column(name = "description", nullable = false)
+    private String description;
     @ManyToOne
     @JoinColumn(name = "requestor_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     User requestor;
-
-
-    @NotNull
-    @Column(name = "creation_date", nullable = false)
-     LocalDateTime created;
+    private User requestor;
+    @Column(name = "created")
+    private LocalDateTime created;
+    @OneToMany(mappedBy = "request", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Column(nullable = true)
+    @JsonIgnore
+    private List<Item> items;
 }

@@ -2,51 +2,51 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.model.RequestClientDto;
-import ru.practicum.shareit.request.model.RequestServerDto;
-import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+/**
+ * TODO Sprint add-item-requests.
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 @RequestMapping(path = "/requests")
 public class RequestController {
-    private final RequestService requestService;
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+    private final ItemRequestService itemRequestService;
 
     @PostMapping
-    public RequestServerDto addRequest(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @RequestBody @Valid RequestClientDto requestDto) {
-        log.info("Принят запрос на добавление запроса вещи");
-        return requestService.addRequest(userId, requestDto);
+    public RequestDto addItemRequest(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                     @Valid @RequestBody(required = false) RequestDto requestDto) {
+        log.info("Получен POST-запрос /requests {} ", requestDto);
+        return itemRequestService.addItemRequest(requestDto, userId);
     }
 
     @GetMapping
-    public List<RequestServerDto> getUserRequests(@RequestHeader("X-Sharer-User-Id") @Positive Long userId) {
-        log.info("Принят запрос на получение списка запросов пользователя ID " + userId);
-        return requestService.getUserRequests(userId);
+    public List<RequestDtoWithRequest> getRequests(@RequestHeader(name = USER_ID_HEADER) Long userId) {
+        log.info("Получен GET-запрос на получение списка своих запросов вместе с данными о них.");
+        return itemRequestService.getItemRequest(userId);
     }
 
-    @GetMapping("/all")
-    public List<RequestServerDto> getOtherRequests(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Принят запрос на получение запросов других пользователей");
-        return requestService.getOtherRequests(userId, from, size);
+    @GetMapping(path = "/all")
+    public List<RequestDtoWithRequest> getAllRequests(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                                      @RequestParam(name = "from", defaultValue = "0") int from,
+                                                      @RequestParam(name = "size", defaultValue = "20") int size) {
+        log.info("Получен GET-запрос на получение списка запросов, созданных другимим пользователями. " +
+                "Результаты возвращаются постранично от {} в количестве {}.", from, size);
+        return itemRequestService.getAllItemRequest(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
-    public RequestServerDto getRequest(@RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-                                       @PathVariable @Positive Integer requestId) {
-        log.info("Принят запрос на получение запроса ID " + requestId);
-        return requestService.getRequest(userId, requestId);
+    public RequestDtoWithRequest getRequestById(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                                @PathVariable Long requestId) {
+        log.info("Получен GET-запрос на получение данных об одном конкретном запросе с данными об ответах.");
+        return itemRequestService.getRequestById(userId, requestId);
     }
 }

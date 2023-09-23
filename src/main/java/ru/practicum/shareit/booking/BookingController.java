@@ -3,78 +3,76 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.booking.model.BookingClientDto;
-import ru.practicum.shareit.booking.model.BookingServerDto;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.enums.State;
+import ru.practicum.shareit.mappers.BookingMapper;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.mappers.BookingMapper.toBookingDto;
+
+/**
+ * TODO Sprint add-bookings.
+ */
 @RestController
+@RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-@RequestMapping(path = "/bookings")
 public class BookingController {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingServerDto addBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @RequestBody @Valid BookingClientDto bookingClientDto) {
-        log.info("Принят запрос на добавление бронирования");
-        return bookingService.addBooking(userId, bookingClientDto);
+    public BookingDto saveBooking(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                  @RequestBody @Valid BookingDto bookingDto) {
+        log.info("Получен POST-запрос /bookings {} ", bookingDto);
+        return bookingService.saveBooking(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingServerDto approveBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long ownerId,
-            @PathVariable @Positive Integer bookingId,
-            @RequestParam @NotNull Boolean approved) {
-        log.info(String.format("Принят запрос на подтверждение или отклонение бронирования ID  %s ",
-                bookingId));
-        return bookingService.approveBooking(ownerId, bookingId, approved);
+    public BookingDto confirmOrCancelBooking(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                             @PathVariable Long bookingId,
+                                             @RequestParam boolean approved) {
+        log.info("Получен PATCH-запрос /bookingId подтверждения/отмены бронирования");
+        return toBookingDto(bookingService.confirmOrCancelBooking(userId, bookingId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public BookingServerDto getBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId, @PathVariable @Positive Integer bookingId) {
-        log.info(String.format("Принят запрос на получение данных бронирования ID  %s от пользователя ID %s ",
-                bookingId, userId));
-        return bookingService.getBooking(userId, bookingId);
+    public BookingDto getBookingForOwnerOrBooker(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                                 @PathVariable Long bookingId) {
+        log.info("Получен GET-запрос просмотра бронирования владельцем предмета или" +
+                " пользователем, бронирующим предмет");
+        return toBookingDto(bookingService.getBookingForOwnerOrBooker(userId, bookingId));
     }
 
     @GetMapping
-    public List<BookingServerDto> getUserBookings(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam (defaultValue = "ALL") State state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info(String.format("Принят запрос на получение списка бронирований пользователя ID %s ",
-                userId));
-        return bookingService.getUserBookings(userId, state, from, size);
+    public List<BookingDto> getAllBookingsForBooker(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                                    @RequestParam(defaultValue = "ALL")
+                                                    String state,
+                                                    @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                                    @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
+        log.info("Получен GET-запрос просмотра всех забронированных вещей и статусов их бронирования " +
+                "для  пользователя");
+        return bookingService.getAllBookingsForUser(userId, state, false, from, size).stream()
+                .map(BookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
-    public List<BookingServerDto> getItemBookings(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam (defaultValue = "ALL") State state,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info(String.format("Принят запрос на получение списка бронирований для всех вещей пользователя ID %s ",
-                userId));
-        return bookingService.getItemBookings(userId, state, from, size);
+    public List<BookingDto> getAllBookingsForOwner(@RequestHeader(name = USER_ID_HEADER) Long userId,
+                                                   @RequestParam(defaultValue = "ALL")
+                                                   String state,
+                                                   @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                                   @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
+        log.info("Получен GET-запрос просмотра всех забронированных вещей и статусов их бронирования " +
+                "для владельца");
+        return bookingService.getAllBookingsForUser(userId, state, true, from, size).stream()
+                .map(BookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
 }

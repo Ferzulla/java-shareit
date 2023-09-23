@@ -2,246 +2,135 @@ package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.EmailAlreadyExistsException;
-import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.user.model.UserDto;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest(controllers = UserController.class)
-class UserControllerTest {
-
+@SpringBootTest
+@AutoConfigureMockMvc
+public class UserControllerTest {
     @Autowired
-    private ObjectMapper mapper;
-
+    private MockMvc mockMvc;
     @Autowired
-    private MockMvc mvc;
+    private ObjectMapper objectMapper;
 
     @MockBean
     private UserService userService;
 
-    private final UserDto userDto = new UserDto(1L, "tested", "test@mail.ru");
+    private User user1;
+    private User user2;
 
-    @SneakyThrows
-    @Test
-    void getAllUsers_whenInvoked_thenStatusOkAndUserList() {
-        when(userService.getAllUsers()).thenReturn(List.of(userDto));
+    @BeforeEach
+    void setUp() {
+        user1 = User.builder()
+                .id(1L)
+                .name("John")
+                .email("john@example.com")
+                .build();
 
-        mvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(userDto.getId()), Long.class))
-                .andExpect(jsonPath("$[0].name", is(userDto.getName())))
-                .andExpect(jsonPath("$[0].email", is(userDto.getEmail())));
-
-        verify(userService, times(1)).getAllUsers();
+        user2 = User.builder()
+                .id(1L)
+                .name("Jane")
+                .email("jane@example.com")
+                .build();
     }
 
     @SneakyThrows
     @Test
-    void getUser_whenInvoked_thenStatusOkAndUser() {
-        when(userService.getUser(anyLong())).thenReturn(userDto);
+    void createUser() {
 
-        mvc.perform(get("/users/{userId}", 1L))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(userDto)));
+        when(userService.saveUser(any()))
+                .thenReturn(user1);
 
-        verify(userService, times(1)).getUser(anyLong());
-    }
-
-    @SneakyThrows
-    @Test
-    void getUser_whenNoSuchUserFound_thenStatusNotFound() {
-        when(userService.getUser(anyLong())).thenThrow(EntityNotFoundException.class);
-
-        mvc.perform(get("/users/{userId}", 2L))
-                .andExpect(status().isNotFound());
-
-        verify(userService, times(1)).getUser(anyLong());
-    }
-
-    @SneakyThrows
-    @ParameterizedTest
-    @ValueSource(longs = {0L, -1L, -999L})
-    void getUser_whenInvalidId_thenStatusBadRequest(long id) {
-        mvc.perform(get("/users/{userId}", id))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).getUser(anyLong());
-    }
-
-    @SneakyThrows
-    @Test
-    void addUser_whenInvoked_thenStatusOkAndUser() {
-        when(userService.addUser(any())).thenReturn(userDto);
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto))
+        mockMvc.perform(post("/users")
+                        .content(objectMapper.writeValueAsString(user1))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(userDto)));
-
-        verify(userService, times(1)).addUser(any());
+                .andExpect(jsonPath("$.name", is(user1.getName())))
+                .andExpect(jsonPath("$.email", is(user1.getEmail())));
     }
 
     @SneakyThrows
     @Test
-    void addUser_whenInvalidUserDto_thenStatusBadRequest() {
-        userDto.setName("");
+    void updateUser() {
+        User userUpdated = new User().builder()
+                .id(1L)
+                .name("Ivan2")
+                .email("ivan@mail.ru")
+                .build();
+        when(userService.updateUser(user1))
+                .thenReturn(userUpdated);
 
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).addUser(any());
-    }
-
-    @SneakyThrows
-    @Test
-    void addUser_whenEmailAlreadyExists_thenStatusConflict() {
-        when(userService.addUser(any())).thenThrow(EmailAlreadyExistsException.class);
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
-
-        verify(userService, times(1)).addUser(any());
-    }
-
-    @SneakyThrows
-    @Test
-    void updateUser_whenInvoked_thenStatusOkAndUser() {
-        when(userService.updateUser(anyLong(), any())).thenReturn(userDto);
-
-        mvc.perform(patch("/users/{userId}", 1L)
-                        .content(mapper.writeValueAsString(userDto))
+        String writeValueAsString = objectMapper.writeValueAsString(user1);
+        mockMvc.perform(patch("/users/1")
+                        .content(writeValueAsString)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(userDto)));
-
-        verify(userService, times(1)).updateUser(anyLong(), any());
+                .andExpect(jsonPath("$.id", is(userUpdated.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userUpdated.getName()), String.class))
+                .andExpect(jsonPath("$.email", is(userUpdated.getEmail()), String.class));
     }
 
-    @SneakyThrows
     @Test
-    void updateUser_whenNoSuchUserFound_thenStatusNotFound() {
-        when(userService.updateUser(anyLong(), any())).thenThrow(EntityNotFoundException.class);
-
-        mvc.perform(patch("/users/{userId}", 2L)
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-
-        verify(userService, times(1)).updateUser(anyLong(), any());
-    }
-
     @SneakyThrows
-    @ParameterizedTest
-    @ValueSource(longs = {0L, -1L, -999L})
-    void updateUser_whenInvalidId_thenStatusBadRequest(long id) {
-        mvc.perform(patch("/users/{userId}", id)
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).updateUser(anyLong(), any());
-    }
-
-    @SneakyThrows
-    @Test
-    void updateUser_whenInvalidUserDto_thenStatusBadRequest() {
-        userDto.setEmail("");
-
-        when(userService.updateUser(anyLong(), any())).thenThrow(ConstraintViolationException.class);
-
-        mvc.perform(patch("/users/{userId}", 1L)
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, times(1)).updateUser(anyLong(), any());
-    }
-
-    @SneakyThrows
-    @Test
-    void updateUser_whenEmailAlreadyExists_thenStatusConflict() {
-        when(userService.updateUser(anyLong(), any())).thenThrow(EmailAlreadyExistsException.class);
-
-        mvc.perform(patch("/users/{userId}", 1L)
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
-
-        verify(userService, times(1)).updateUser(anyLong(), any());
-    }
-
-    @SneakyThrows
-    @Test
-    void deleteUser_whenInvoked_thenStatusOk() {
-        doNothing().when(userService).deleteUser(anyLong());
-
-        mvc.perform(delete("/users/{userId}", 1L))
+    void deleteUser() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/users/{id}", 1))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).deleteUser(anyLong());
+
     }
 
     @SneakyThrows
     @Test
-    void deleteUser_whenNoSuchUserFound_thenStatusNotFound() {
-        doThrow(EntityNotFoundException.class).when(userService).deleteUser(anyLong());
+    void getUserById() {
 
-        mvc.perform(delete("/users/{userId}", 2L))
-                .andExpect(status().isNotFound());
+        when(userService.getUserById(1L))
+                .thenReturn(user1);
 
-        verify(userService, times(1)).deleteUser(anyLong());
+        mockMvc.perform(get("/users/1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is(user1.getName())))
+                .andExpect(jsonPath("$.email", is(user1.getEmail())));
     }
 
     @SneakyThrows
-    @ParameterizedTest
-    @ValueSource(longs = {0L, -1L, -999L})
-    void deleteUser_whenInvalidId_thenStatusBadRequest(long id) {
-        mvc.perform(delete("/users/{userId}", id))
-                .andExpect(status().isBadRequest());
+    @Test
+    void getAllUsers() {
 
-        verify(userService, never()).deleteUser(anyLong());
+        when(userService.getAllUsers())
+                .thenReturn(List.of(user1, user2));
+
+        mockMvc.perform(get("/users")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name", is(user1.getName())))
+                .andExpect(jsonPath("$[0].email", is(user1.getEmail())))
+                .andExpect(jsonPath("$[1].name", is(user2.getName())))
+                .andExpect(jsonPath("$[1].email", is(user2.getEmail())));
     }
 }

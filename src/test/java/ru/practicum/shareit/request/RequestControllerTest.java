@@ -2,201 +2,179 @@ package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.request.model.RequestClientDto;
-import ru.practicum.shareit.request.model.RequestServerDto;
-import ru.practicum.shareit.request.service.RequestService;
+import org.springframework.test.web.servlet.MvcResult;
+import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest(controllers = RequestController.class)
-class RequestControllerTest {
-
+@SpringBootTest
+@AutoConfigureMockMvc
+public class RequestControllerTest {
     @Autowired
-    private ObjectMapper mapper;
-
+    private ObjectMapper objectMapper;
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
+
 
     @MockBean
-    private RequestService requestService;
+    private ItemRequestService itemRequestService;
 
-    private final RequestClientDto requestClientDto = new RequestClientDto("test");
-    private final RequestServerDto requestServerDto
-            = new RequestServerDto(1, "test", LocalDateTime.of(2000, 1, 1, 0, 0, 0), Collections.emptyList());
+    private RequestDto requestDto;
+    private RequestDtoWithRequest requestDtoWithRequest;
+    private UserDto userDto;
 
-    @SneakyThrows
+
+    @BeforeEach
+    void setUp() {
+        userDto = UserDto.builder()
+                .id(1L)
+                .name("Ivan")
+                .email("ivan@mail.ru")
+                .build();
+
+
+        requestDto = RequestDto.builder()
+                .id(1L)
+                .created(LocalDateTime.of(2023, 7, 9, 13, 56))
+                .description("Хотел бы воспользоваться щёткой для обуви")
+                .requestor(userDto)
+                .items(new ArrayList<>())
+                .build();
+
+        requestDtoWithRequest = RequestDtoWithRequest.builder()
+                .id(1L)
+                .created(LocalDateTime.of(2023, 7, 9, 13, 56))
+                .description("Хотел бы воспользоваться щёткой для обуви")
+                .requestor(userDto)
+                .items(new ArrayList<>())
+                .build();
+
+    }
+
     @Test
-    void addRequest_whenInvoked_thenStatusOkAndRequestDto() {
-        when(requestService.addRequest(anyLong(), any())).thenReturn(requestServerDto);
+    @SneakyThrows
+    void addItemRequestTest() {
+        when(itemRequestService.addItemRequest(any(), anyLong()))
+                .thenReturn(requestDto);
 
-        mvc.perform(post("/requests")
+        mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", 1L)
-                        .content(mapper.writeValueAsString(requestClientDto))
+                        .content(objectMapper.writeValueAsString(requestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(requestServerDto)));
-
-        verify(requestService, times(1)).addRequest(anyLong(), any());
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.requestor.id", is(requestDto.getRequestor().getId()), Long.class))
+                .andExpect(jsonPath("$.description", is(requestDto.getDescription())));
     }
 
-    @SneakyThrows
     @Test
-    void addRequest_whenInvalidDto_thenStatusBadRequest() {
-        requestClientDto.setDescription(null);
+    @SneakyThrows
+    void requestsGetTest() {
+        when(itemRequestService.getItemRequest(anyLong()))
+                .thenReturn(List.of(requestDtoWithRequest));
 
-        mvc.perform(post("/requests")
+        mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1L)
-                        .content(mapper.writeValueAsString(requestClientDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(requestService, never()).addRequest(anyLong(), any());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].requestor.id", is(requestDto.getRequestor().getId()), Long.class))
+                .andExpect(jsonPath("$[0].description", is(requestDto.getDescription())));
     }
 
-    @SneakyThrows
     @Test
-    void getUserRequests_whenInvoked_thenStatusOkAndRequestDtoList() {
-        when(requestService.getUserRequests(anyLong())).thenReturn(List.of(requestServerDto));
+    @SneakyThrows
+    void getUserItemRequests() {
 
-        mvc.perform(get("/requests")
+        Long userId = userDto.getId();
+        RequestDtoWithRequest requestDtoWithRequest = RequestDtoWithRequest.builder()
+                .id(requestDto.getId())
+                .requestor(requestDto.getRequestor())
+                .created(requestDto.getCreated())
+                .items(Collections.emptyList())
+                .build();
+
+        List<RequestDtoWithRequest> expected = new ArrayList<>(
+                List.of(requestDtoWithRequest)
+        );
+
+        when(itemRequestService.getItemRequest(anyLong()))
+                .thenReturn(expected);
+
+
+        MvcResult result = mockMvc.perform(get("/requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", String.valueOf(userId)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        List<RequestDtoWithRequest> actual = List.of(
+                objectMapper.readValue(
+                        result.getResponse().getContentAsString(),
+                        RequestDtoWithRequest[].class
+                )
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @SneakyThrows
+    void requestsAllGetTest() {
+        when(itemRequestService.getAllItemRequest(1L, 0, 20))
+                .thenReturn(List.of(requestDtoWithRequest));
+
+        mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(List.of(requestServerDto))));
-
-        verify(requestService, times(1)).getUserRequests(anyLong());
+                .andExpect(jsonPath("$[0].requestor.id", is(requestDto.getRequestor().getId()), Long.class))
+                .andExpect(jsonPath("$[0].description", is(requestDto.getDescription())));
     }
 
-    @SneakyThrows
     @Test
-    void getUserRequests_whenNoSuchUserFound_thenStatusNotFound() {
-        when(requestService.getUserRequests(anyLong())).thenThrow(EntityNotFoundException.class);
-
-        mvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-
-        verify(requestService, times(1)).getUserRequests(anyLong());
-    }
-
     @SneakyThrows
-    @ParameterizedTest
-    @ValueSource(longs = {0L, -1L, -999L})
-    void getUserRequests_whenInvalidId_thenStatusBadRequest(long userId) {
-        mvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+    void getRequestByIdTest() {
+        when(itemRequestService.getRequestById(anyLong(), anyLong()))
+                .thenReturn(requestDtoWithRequest);
 
-        verify(requestService, never()).getUserRequests(anyLong());
-    }
-
-    @SneakyThrows
-    @Test
-    void getOtherRequests_whenInvoked_thenStatusOkAndRequestDtoList() {
-        when(requestService.getOtherRequests(anyLong(), anyInt(), anyInt())).thenReturn(List.of(requestServerDto));
-
-        mvc.perform(get("/requests/all")
+        mockMvc.perform(get("/requests/{requestId}", requestDtoWithRequest.getId())
                         .header("X-Sharer-User-Id", 1L)
-                        .param("from", "0")
-                        .param("size", "1")
-                        .accept(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(List.of(requestServerDto))));
-
-        verify(requestService, times(1)).getOtherRequests(anyLong(), anyInt(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void getOtherRequests_whenNoSuchUserFound_thenStatusOkAndRequestDtoList() {
-        when(requestService.getOtherRequests(anyLong(), anyInt(), anyInt())).thenThrow(EntityNotFoundException.class);
-
-        mvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
-                        .param("from", "0")
-                        .param("size", "1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-
-        verify(requestService, times(1)).getOtherRequests(anyLong(), anyInt(), anyInt());
-    }
-
-    @SneakyThrows
-    @ParameterizedTest
-    @ValueSource(longs = {0L, -1L, -999L})
-    void getOtherRequests_whenInvalidId_thenStatusBadRequest(long userId) {
-        mvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId)
-                        .param("from", "0")
-                        .param("size", "1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(requestService, never()).getOtherRequests(anyLong(), anyInt(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void getRequest_whenInvoked_thenStatusOkAndRequestDto() {
-        when(requestService.getRequest(anyLong(), anyInt())).thenReturn(requestServerDto);
-
-        mvc.perform(get("/requests/{requestId}", 1)
-                        .header("X-Sharer-User-Id", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(requestServerDto)));
-
-        verify(requestService, times(1)).getRequest(anyLong(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void getRequest_whenNoSuchUserOrRequestFound_thenStatusNotFound() {
-        when(requestService.getRequest(anyLong(), anyInt())).thenThrow(EntityNotFoundException.class);
-
-        mvc.perform(get("/requests/{requestId}", 1)
-                        .header("X-Sharer-User-Id", 1L)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-
-        verify(requestService, times(1)).getRequest(anyLong(), anyInt());
-    }
-
-    @SneakyThrows
-    @ParameterizedTest
-    @CsvSource({"0,1", "-1,1", "-999,1", "1,0", "1,-1", "-1,-999"})
-    void getRequest_whenOneOrBothIdsInvalid_thenStatusBadRequest(long userId, int requestId) {
-        mvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(requestService, never()).getRequest(anyLong(), anyInt());
+                .andExpect(jsonPath("$.requestor.id", is(requestDto.getRequestor().getId()), Long.class))
+                .andExpect(jsonPath("$.description", is(requestDto.getDescription())));
     }
 }

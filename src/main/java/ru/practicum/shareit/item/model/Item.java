@@ -1,49 +1,41 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.request.model.Request;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.model.Comment;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
+
+/**
+ * TODO Sprint add-controllers.
+ */
 @Entity
-@Table(name = "items")
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "items")
+@Builder
 public class Item {
     @Id
+    @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     Integer id;
-
-    @Column(nullable = false)
-    @NotBlank
-     String name;
-
-    @Column(nullable = false)
-    @NotBlank
-     String description;
-
-    @Column(nullable = false)
-    @NotNull
-     Boolean available;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     User owner;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    Request request;
+    private Long id;
+    @Column(name = "item_name", nullable = false)
+    private String name;
+    @Column(name = "description", nullable = false)
+    private String description;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
+    @Column(name = "is_available")
+    private Boolean available;
+    @Column
+    private Long request;
+    @OneToMany(mappedBy = "item")
+    private List<Booking> bookings;
+    @OneToMany(mappedBy = "item")
+    private List<Comment> comments;
 }
