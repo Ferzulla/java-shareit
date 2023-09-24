@@ -2,47 +2,42 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.model.Comment;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
+
+/**
+ * TODO Sprint add-controllers.
+ */
 @Entity
-@Table(name = "items")
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "items")
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item {
     @Id
+    @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     Integer id;
-
-    @Column(nullable = false)
-    @NotBlank
+     Long id;
+    @Column(name = "item_name", nullable = false)
      String name;
-
-    @Column(nullable = false)
-    @NotBlank
+    @Column(name = "description", nullable = false)
      String description;
-
-    @Column(nullable = false)
-    @NotNull
+    @Column(name = "owner_id", nullable = false)
+     Long ownerId;
+    @Column(name = "is_available")
      Boolean available;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     User owner;
-
-    @Transient
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     ItemRequest request;
+    @Column
+     Long request;
+    @OneToMany(mappedBy = "item")
+     List<Booking> bookings;
+    @OneToMany(mappedBy = "item")
+     List<Comment> comments;
 }

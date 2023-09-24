@@ -2,60 +2,45 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.enums.Status;
+import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.validator.ValidStartEndDate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.Future;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "bookings")
+/**
+ * TODO Sprint add-bookings.
+ */
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = {"id"})
 @AllArgsConstructor
 @NoArgsConstructor
-@ValidStartEndDate
+@Builder
+@Entity
+@Table(name = "bookings")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Booking {
     @Id
+    @Column(name = "booking_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     Integer id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     Item item;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booker_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-     User booker;
-
-    @Column(name = "start_date", nullable = false)
+     Long id;
+    @Column(name = "start_date")
      LocalDateTime start;
-
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
+    @Future
      LocalDateTime end;
-
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @ToString.Exclude
+    @JoinColumn(name = "item_id", nullable = false)
+     Item item;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JoinColumn(name = "booker_id", nullable = false)
+     User booker;
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    @NotNull
      Status status;
 }

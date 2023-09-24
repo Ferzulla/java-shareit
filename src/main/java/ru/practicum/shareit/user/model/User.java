@@ -6,28 +6,29 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
+/**
+ * TODO Sprint add-controllers.
+ */
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(exclude = {"id"})
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
      Long id;
-
-    @Column(nullable = false)
     @NotBlank
+    @Column(name = "user_name")
      String name;
-
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Email не должен быть пустым")
     @Email
-    @NotNull
+    @Column(name = "email")
      String email;
 }
