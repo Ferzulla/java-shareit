@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -17,16 +18,17 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+     Long id;
     @NotBlank
     @Column(name = "user_name")
-    private String name;
+     String name;
     @NotBlank(message = "Email не должен быть пустым")
     @Email
     @Column(name = "email")
-    private String email;
+     String email;
 }

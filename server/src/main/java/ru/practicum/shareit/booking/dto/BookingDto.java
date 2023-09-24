@@ -1,8 +1,10 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -13,18 +15,19 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDto {
-    private Long id;
+     Long id;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime start;
+     LocalDateTime start;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime end;
+     LocalDateTime end;
     @JsonProperty(access = WRITE_ONLY)
-    private Long itemId;
-    private UserDto booker;
-    private ItemDto item;
-    private Status status;
+     Long itemId;
+     UserDto booker;
+     ItemDto item;
+     Status status;
 
 
 }

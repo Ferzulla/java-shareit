@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.comment.model;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -13,21 +14,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "comments")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Comment {
     @Id
     @Column(name = "comment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+     Long id;
     @Column(name = "text", nullable = false)
-    private String text;
+     String text;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+     Item item;
     @ManyToOne(fetch = FetchType.EAGER)
     @ToString.Exclude
     @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+     User author;
     @Column
-    private LocalDateTime created = LocalDateTime.now();
+     LocalDateTime created = LocalDateTime.now();
 }
