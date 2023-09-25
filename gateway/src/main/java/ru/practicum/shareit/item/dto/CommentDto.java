@@ -1,9 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
@@ -15,13 +13,14 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDto {
-    private Long id;
+     Long id;
     @NotBlank
-    private String text;
+     String text;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime created;
-    private String authorName;
+     LocalDateTime created;
+     String authorName;
 
     @Override
     public boolean equals(Object o) {

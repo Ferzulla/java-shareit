@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request.dto;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.dto.ItemDtoReq;
 
@@ -10,10 +12,11 @@ import java.util.List;
 
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RequestDtoWithRequest {
-    private Long id;
-    private String description;
+     Long id;
+     String description;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime created;
-    private List<ItemDtoReq> items;
+     LocalDateTime created;
+     List<ItemDtoReq> items;
 }

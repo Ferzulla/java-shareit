@@ -1,10 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -24,23 +22,24 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDto {
-    private Long id;
+     Long id;
     @NotNull(message = "Дата начала бронирования не может быть пустой")
     @FutureOrPresent(message = "Дата начала бронирования не может быть в прошлом")
     @JsonProperty("start")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime start;
+     LocalDateTime start;
     @NotNull(message = "Дата окончания бронирования не может быть пустой")
     @Future(message = "Дата окончания бронирования не может быть в прошлом")
     @JsonProperty("end")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime end;
-    private UserDto booker;
+     LocalDateTime end;
+     UserDto booker;
     @NotNull
     @Min(value = 1, message = "Item id должно быть больше 0")
-    private Long itemId;
-    private ItemDto item;
-    private Status status;
+     Long itemId;
+     ItemDto item;
+     Status status;
 }
 

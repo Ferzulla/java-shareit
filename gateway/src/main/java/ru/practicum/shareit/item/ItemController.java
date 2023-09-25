@@ -29,9 +29,9 @@ public class ItemController {
     public ResponseEntity<Object> saveItem(@NotNull @Validated(Validation.Post.class) @RequestBody ItemDto itemDto,
                                            @RequestHeader(name = USER_ID_HEADER)
                                            @Min(value = 1, message = "User ID must be more than 0") Long userId) {
-        log.info("Получен POST-запрос /items {} ", itemDto);
+        log.info(String.format("Получен POST-запрос /items {} %s", itemDto));
         ResponseEntity<Object> response = itemClient.saveItem(itemDto, userId);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -41,10 +41,10 @@ public class ItemController {
                                              @NotNull @Validated(Validation.Patch.class) @RequestBody ItemDto itemDto,
                                              @PathVariable @Min(value = 1, message = "Item ID must be more than 0")
                                              Long itemId) {
-        log.info("Получен PATCH-запрос /itemId {} ", itemId);
+        log.info(String.format("Получен PATCH-запрос /itemId {} %s", itemId));
         itemDto.setId(itemId);
         ResponseEntity<Object> response = itemClient.updateItem(itemDto, userId);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -53,9 +53,9 @@ public class ItemController {
                                               @Min(value = 1, message = "User ID must be more than 0") Long userId,
                                               @PathVariable @Min(value = 1, message = "Item ID must be more than 0")
                                               Long itemId) {
-        log.info("Получен GET-запрос /itemId {} ", itemId);
+        log.info(String.format("Получен GET-запрос /itemId {} %s", itemId));
         ResponseEntity<Object> response = itemClient.getItemById(userId, itemId);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -68,9 +68,9 @@ public class ItemController {
                                                  @RequestParam(name = "size", defaultValue = "20")
                                                      @Min(value = 0, message = "Size must be more than 0")
                                                      Integer size) {
-        log.info("Получен GET-запрос: список всех предметов одного пользователя {} ", userId);
+        log.info(String.format("Получен GET-запрос: список всех предметов одного пользователя {}  %s", userId));
         ResponseEntity<Object> response = itemClient.getItemByUser(userId, from, size);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -82,9 +82,9 @@ public class ItemController {
                                                      message = "Parameter 'from' must be more than 0") Integer from,
                                              @RequestParam(name = "size", defaultValue = "20") @Min(value = 0,
                                                      message = "Parameter 'size' must be more than 0") Integer size) {
-        log.info("Получен GET-запрос /text {} , от ID пользователя: {} ", text, userId);
+        log.info(String.format("Получен GET-запрос /text {} , от ID пользователя: {}  %s, %s", text, userId));
         ResponseEntity<Object> response = itemClient.searchItem(userId, text, from, size);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -97,7 +97,7 @@ public class ItemController {
         log.info("Получен POST-запрос: добавление отзыва {} о бронировании ID предмета {} от ID пользователя {}",
                 commentDto, itemId, userId);
         ResponseEntity<Object> response = itemClient.postComment(userId, itemId, commentDto);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
@@ -107,6 +107,6 @@ public class ItemController {
                            @PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId) {
         log.info("Получен DELETE- запрос на уаление предмета, ID: {}, ID от пользователя {}", itemId, userId);
         ResponseEntity<Object> response = itemClient.deleteItem(userId, itemId);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
     }
 }

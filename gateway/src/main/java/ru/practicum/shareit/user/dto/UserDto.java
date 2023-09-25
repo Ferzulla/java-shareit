@@ -1,9 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.validation.Validation;
 
 import javax.validation.constraints.Email;
@@ -14,14 +12,15 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
 
-    private Long id;
+     Long id;
     @NotBlank(groups = Validation.Post.class)
-    private String name;
+     String name;
     @Email
     @NotBlank(groups = Validation.Post.class)
-    private String email;
+     String email;
 
     @Override
     public boolean equals(Object o) {

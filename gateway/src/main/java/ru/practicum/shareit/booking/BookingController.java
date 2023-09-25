@@ -29,7 +29,7 @@ public class BookingController {
             @Min(value = 1, message = "User ID must be more than 0") Long userId,
             @RequestBody @Validated BookingDto bookingDto
     ) {
-        log.info("Получен POST-запрос /bookings {} ", bookingDto);
+        log.info(String.format("Получен POST-запрос /bookings {} %s", bookingDto));
         ResponseEntity<Object> response = bookingClient.saveBooking(userId, bookingDto);
         log.info("Ответ на запрос: {}", response);
         return response;
@@ -43,7 +43,7 @@ public class BookingController {
                                                 @RequestParam boolean approved) {
         log.info("Получен PATCH-запрос /bookingId подтверждения/отмены бронирования");
         ResponseEntity<Object> response = bookingClient.updateBooking(userId, bookingId, approved);
-        log.info("Ответ на запрос: {}", response);
+        log.info(String.format("Ответ на запрос: {} %s", response));
         return response;
     }
 
